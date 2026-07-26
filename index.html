@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Gallery</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+
+        /* হেডার সেকশন */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto 25px auto;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        /* ক্যাটাগরি বাটন */
+        .category-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            background-color: #ffffff;
+            color: #333333;
+            border: 2px solid #007bff;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+
+        /* সার্চ বক্স */
+        .search-box {
+            width: 100%;
+            max-width: 280px;
+            padding: 9px 18px;
+            font-size: 15px;
+            border: 2px solid #007bff;
+            border-radius: 25px;
+            outline: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* গ্যালারি কন্টেইনার: প্রতি সারিতে ঠিক ৭টি করে বক্স */
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr); 
+            gap: 15px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ছবির সিঙ্গেল বক্স */
+        .image-box {
+            background-color: #ffffff;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .image-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        /* ছবি রাখার ঘর (এক সমান স্কয়ার রাখার জন্য aspect-ratio) */
+        .image-wrapper {
+            cursor: pointer;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            background-color: #eaeaea;
+        }
+
+        /* ছবির সাইজ নির্দিষ্ট করে দেওয়া */
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* ছবির নিচের নাম */
+        .image-title {
+            padding: 8px 5px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+            color: #333333;
+            background-color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            height: 35px;
+            line-height: 20px;
+        }
+
+        /* ডাউনলোড বাটন স্টাইল */
+        .download-btn {
+            display: block;
+            background-color: #28a745;
+            color: #ffffff;
+            text-align: center;
+            padding: 8px 5px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 13px;
+            height: 35px;
+            line-height: 20px;
+            transition: background-color 0.2s ease;
+        }
+
+        .download-btn:hover {
+            background-color: #218838;
+        }
+
+        /* লুকানোর জন্য class */
+        .hidden {
+            display: none !important;
+        }
+
+        /* রেসপন্সিভ ব্রেকপয়েন্ট */
+        @media (max-width: 1200px) {
+            .gallery-container {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .gallery-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .gallery-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .header-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .category-options {
+                justify-content: center;
+            }
+            .search-box {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-section">
+        <!-- ক্যাটাগরি বাটনসমূহ -->
+        <div class="category-options">
+            <button class="category-btn active" onclick="switchCategory('Software', this)">Software</button>
+            <button class="category-btn" onclick="switchCategory('Theme', this)">Theme</button>
+            <button class="category-btn" onclick="switchCategory('Game', this)">Game</button>
+            <button class="category-btn" onclick="switchCategory('Windows', this)">Windows</button>
+        </div>
+
+        <!-- সার্চ বক্স -->
+        <input 
+            type="text" 
+            id="searchInput" 
+            class="search-box" 
+            placeholder="Search..." 
+            onkeyup="filterImages()"
+        >
+    </div>
+
+    <div class="gallery-container">
+        
+        <!-- ==================== WINDOWS SECTION ==================== -->
+        <!-- Windows 11 -->
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-first-link="https://www.effectivecpmnetwork.com/kysef0cy?key=899c3e306436d2a84d7b185f398f16bf" 
+                 data-second-link="https://software.download.prss.microsoft.com/dbazure/Win11_25H2_English_x64_v2.iso?t=3aac3062-c33a-49af-9612-23376952f825&P1=1785055416&P2=602&P3=2&P4=toHXc6U9WHcD5N1mUGMs%2b9fsyGnJpTUxplfIBE99QfnY2uvUbj2a0QHSKAH2xTXcJQPNsAMrtyGZBOdZw%2f19c06kkf6pHvxYURGvmq%2f9o90PMAQnI2JFZNAjkPccjNkZwEHeyH6GCjQ6EOpUJYFptCTIOUAwF%2fRdAfyePqhhMCde1l60TP%2bIa%2bCovxaZbwNelvZF%2fzxbRYyjoftXg3dneHZbjZRnh3%2f%2bqEJSU4zXIF%2b23Zaye8o%2fL5gt0iv3zhXmj%2flkB7EZI5sNmUjEUpdrKEvlX9RUyMEyws18cnCQjR%2fqW7QP5mH08PHcfWdmb1qKRR5mV8e8FyhD8qztTlD96g%3d%3d" 
+                 onclick="handleImageClick(this)">
+                <img src="https://thumbs.dreamstime.com/b/windows-logo-isolated-image-features-windows-logo-consisting-four-equally-sized-blue-squares-arranged-grid-407575177.jpg" alt="Windows 11">
+            </div>
+            <div class="image-title">Windows 11</div>
+        </div>
+
+        <!-- Windows 10 32 bit -->
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-first-link="https://www.effectivecpmnetwork.com/kysef0cy?key=899c3e306436d2a84d7b185f398f16bf" 
+                 data-second-link="https://software.download.prss.microsoft.com/dbazure/Win10_22H2_English_x32v1.iso?t=1e3aed7f-d3b4-464f-af2f-93dd7785bbe4&P1=1785056972&P2=602&P3=2&P4=jFRgQEC1%2bPDsRaEzlwwc0DyPmlYLNBbloSiQjaAiNQrXkD0HR8qdnDZBNnHlUQ3k5c%2f1aDfKMtVohX2qJrAXcLV7PHD6AOPETGAqnX8pDvHoJUxCO2TD1truO%2fUfs4nhsU44IGGdg3SgCrhjg0M1MtY0fAIbaNTCqjrrkG3C4L3zECVY080nh4ZpBbgwO%2bXIGQp3VHycnKrGPPwzGCenyDq7HLoEPf0Vx%2fpnx6ebBs%2b%2bGYH%2fTRXjPAGfFUZiq%2bJq2ilw8lD%2fU6u1VwWKWMVhD4YnmHqKfHJDEYhMf5w2fKrg1qTh0rueFdkvYZgYbSe5l47JM4JpjV1%2f10wCj0f4iw%3d%3d" 
+                 onclick="handleImageClick(this)">
+                <img src="https://copilot.microsoft.com/th/id/BCO.2f48c9ad-0240-4ab1-b21f-da7d334525ad.png" alt="Windows 10 32 bit">
+            </div>
+            <div class="image-title">Windows 10 32 bit</div>
+        </div>
+
+        <!-- Windows 10 64 bit -->
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-first-link="https://www.effectivecpmnetwork.com/kysef0cy?key=899c3e306436d2a84d7b185f398f16bf" 
+                 data-second-link="https://software.download.prss.microsoft.com/dbazure/Win10_22H2_English_x64v1.iso?t=1e3aed7f-d3b4-464f-af2f-93dd7785bbe4&P1=1785056972&P2=602&P3=2&P4=qh487XSBCD2SQbdyvPIgTyIOCwrY499OGY3ZcGqyIQ0A6Pnl15iNKpTFJbqdvQ2RkcjzQjPxThdNVPedBk3fLLZ4siAlMkn2Nvne152Sb8fQ%2bcNtJvpWNVUhzVizo1R4iULCIcozh4IH7iLnWrCI0GiWJ5PQcqdTvWeAQmnMMVDCIrfOXWWHjKYTYXi0CQHQWgqJoRvU2kX9sywY7Y2BIziat5Lq4ymCoEaJyO0HxH1bJs45%2b%2fnXBaGf7ylGY5wMEUtIhQcL%2fpf7wzTWpzMIgZtz7%2fw%2fbqgm1IjYnI2JZMBM2%2fSQc3liY%2b67sY%2fZ2mdSMssa7SIaiNu4PqsAi8wssQ%3d%3d" 
+                 onclick="handleImageClick(this)">
+                <img src="https://copilot.microsoft.com/th/id/BCO.2f48c9ad-0240-4ab1-b21f-da7d334525ad.png" alt="Windows 10 64 bit">
+            </div>
+            <div class="image-title">Windows 10 64 bit</div>
+        </div>
+
+        <!-- Windows 10 -->
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-first-link="https://www.effectivecpmnetwork.com/kysef0cy?key=899c3e306436d2a84d7b185f398f16bf" 
+                 data-second-link="https://drive.usercontent.google.com/download?id=1ux6gJPIWMlT9uQgXPtj9t6WA8a19GWb9&export=download&authuser=0&confirm=t&uuid=47865061-a051-4550-b49e-fd41800e971a&at=ABswASb9U4ixSPc8_ZWpRMkjiCVT:1784971754848" 
+                 onclick="handleImageClick(this)">
+                <img src="https://copilot.microsoft.com/th/id/BCO.2f48c9ad-0240-4ab1-b21f-da7d334525ad.png" alt="Windows 10">
+            </div>
+            <div class="image-title">Windows 10 ltsc 2019</div>
+        </div>
+
+<!-- Windows 8.1 -->
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-first-link="https://www.effectivecpmnetwork.com/qcff8gtqjx?key=72438043a7b61df288d0e91c5f16c4bc" 
+                 data-second-link="https://drive.usercontent.google.com/download?id=1znTJXaP82TkvAwTA7FX0JGYemEXXoUtM&export=download&authuser=0&confirm=t&uuid=599c5659-44a7-491d-a848-a5997d519517&at=ABswASaAB1T8UqSZJNGXPdOcQw1U:1785050542600" 
+                 onclick="handleImageClick(this)">
+                <img src="https://dn721301.ca.archive.org/0/items/win-8.1-english-x-64_202505/Windows_8.1_Pro_Default_Start_Screen.png" alt="Windows 8.1">
+            </div>
+            <div class="image-title">Windows 8.1 32bit</div>
+        </div>
+
+<!-- Windows 8.1 -->
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-first-link="https://www.effectivecpmnetwork.com/qcff8gtqjx?key=72438043a7b61df288d0e91c5f16c4bc" 
+                 data-second-link="https://drive.usercontent.google.com/download?id=12YcjPQ5euURAVSLVJJn2sB54pWIZU2gG&export=download&authuser=0&confirm=t&uuid=a258ca2b-59c6-4ec9-861b-c0c764030196&at=ABswASZy5qBhDMpjC0Xgg6hQ6TLa:1785069766090" 
+                 onclick="handleImageClick(this)">
+                <img src="https://dn721301.ca.archive.org/0/items/win-8.1-english-x-64_202505/Windows_8.1_Pro_Default_Start_Screen.png" alt="Windows 8.1">
+            </div>
+            <div class="image-title">Windows 8.1 64bit</div>
+        </div>
+
+ <!-- Windows 10 -->
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-first-link="https://www.effectivecpmnetwork.com/qcff8gtqjx?key=72438043a7b61df288d0e91c5f16c4bc" 
+                 data-second-link="https://pixeldrain.com/api/file/kN2b4G14?download" 
+                 onclick="handleImageClick(this)">
+                <img src="https://i.ytimg.com/vi/EOb3iRU8dQw/maxresdefault.jpg" alt="Windows 10">
+            </div>
+            <div class="image-title">Windows 10 X-Lite</div>
+        </div>
+
+<!-- Windows 10 -->
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-first-link="https://www.effectivecpmnetwork.com/qcff8gtqjx?key=72438043a7b61df288d0e91c5f16c4bc" 
+                 data-second-link="https://pixeldrain.com/api/file/qCjhYMfP?download" 
+                 onclick="handleImageClick(this)">
+                <img src="https://tse2.mm.bing.net/th/id/OIP.4NdRzHDUlyanqLnjGsoCKAHaEK?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Windows 10">
+            </div>
+            <div class="image-title">Windows 11 X-Lite</div>
+        </div>
+
+        <!-- ==================== SOFTWARE SECTION (ডেমো) ==================== -->
+        <div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-first-link="" data-second-link="https://drive.usercontent.google.com/download?id=1l7A3IzCh-9ivxS2DSHaKDQVMMQ_8666N&export=download&authuser=1&confirm=t&uuid=4db97991-e258-4ca0-b5c2-6a01d2ad266f&at=ABswASaFhdRBRiCn7bP1wuMg175k:1784992426604" onclick="handleImageClick(this)">
+                <img src="https://pics.paypal.com/00/s/ZDFlNDM0ZWItMTlmNC00YmZlLWEyMzItYWYzNDFlYTQ2ODJl/file.JPG" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe Photoshop 2021 </div>
+        </div>
+
+ <div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-first-link="" data-second-link="https://drive.usercontent.google.com/download?id=1HTQy5lrfv1LHRcJ57EJDVZWuUJjcVpTM&export=download&authuser=1&confirm=t&uuid=bd6d5fba-2bbe-4550-9ba4-5ad07b8ddc1b&at=ABswASZxOQfB1eTwFEHJGRzzTDdu:1784996461892" onclick="handleImageClick(this)">
+                <img src="https://tse3.mm.bing.net/th/id/OIP.2N4rvxoOr5GfeqbiJgqUIQHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe Audition 2020</div>
+        </div>
+
+<div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-first-link="" data-second-link="https://drive.usercontent.google.com/download?id=1iq_s1vNaF3PXmzGRtBzK405Esmf03i6X&export=download&authuser=1&confirm=t&uuid=34742b46-00e1-475d-8568-b8974707db81&at=ABswASbGNi95VqFV-xITk58PYJov:1784996098193" onclick="handleImageClick(this)">
+                <img src="https://files.selar.co/product-images/2023/products/VideoMarketingHub/adobe-media-encoder-2022--selar.co-6499f335767e8.png" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe Media Encoder 2020</div>
+        </div>
+
+<div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-first-link="" data-second-link="https://drive.usercontent.google.com/download?id=1FevfrgSHQcbKx9fGNSdn5YDIoVNzl5zk&export=download&authuser=1&confirm=t&uuid=ad74d967-a52a-414b-9ebe-bbdb296de28c&at=ABswASbUsy2eCi-UXmokC5RTc5-s:1784997306513" onclick="handleImageClick(this)">
+                <img src="https://tse3.mm.bing.net/th/id/OIP.lwrzwwTRhvQzgFXcjDWvPgHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe Premiere Pro 2020</div>
+        </div>
+
+<div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-first-link="" data-second-link="https://drive.usercontent.google.com/download?id=15dud1AWiP81ITWDY8CQxljAe3dvbnsqg&export=download&authuser=1&confirm=t&uuid=f203e6fc-5941-4c35-8379-34e6398d8485&at=ABswASZouF0ZpP4O4KmEHjSFdDwJ:1784997747622"  onclick="handleImageClick(this)">
+                <img src="https://files.selar.co/product-images/2023/products/VideoMarketingHub/adobe-illustrator-2022-pr-selar.co-64998cb49527a.png" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe.Illustrator-2021</div>
+        </div>
+
+<div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-first-link="" data-second-link="https://drive.usercontent.google.com/download?id=1Q_P4OK_lNHGGJXOwpQfIWNg7n7N1-_b7&export=download&authuser=1&confirm=t&uuid=3b639192-0850-4f58-a2ee-c03a1b70dad0&at=ABswASY-7K80zfteFdkyO_D46tTn:1784998372993" onclick="handleImageClick(this)">
+                <img src="https://tonghor.com/wp-content/uploads/2024/04/Adobe-Lightroom-Classic-2024-Full-Version-for-Windows.webp" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe Lightroom 2021</div>
+        </div>
+
+<div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-first-link="" data-second-link="https://drive.usercontent.google.com/download?id=1UhjQQ_wIU5Jn_kx2_fAJKjNS8EcQ1Go5&export=download&authuser=1&confirm=t&uuid=610c02eb-a642-494d-9c54-00f9e024385a&at=ABswASZkLhSeyGvgDaawQ-Kjf0j_:1785000110465" onclick="handleImageClick(this)">
+                <img src="https://tonghor.com/wp-content/uploads/2024/04/Adobe-After-Effects-2024-Full-Version-for-MacOS.jpg" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe After Effects 2020</div>
+        </div>
+
+<div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-first-link="" data-second-link="https://drive.usercontent.google.com/download?id=1EH4ox1cO11vEd3MyZleXm4WC3YWHzjdT&export=download&authuser=1&confirm=t&uuid=4d9b68af-ae0d-438f-9c66-60e46b1626a4&at=ABswASbAB3Z9NSs97nQ6WNTCJxXi%3A1785002008845" onclick="handleImageClick(this)">
+                <img src="https://tonghor.com/wp-content/uploads/2024/04/Adobe-Animate-2024-Full-Version-for-MacOS.jpg" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe Animate 2021</div>
+        </div>
+
+<div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-first-link="" data-second-link="" onclick="handleImageClick(this)">
+                <img src="https://tonghor.com/wp-content/uploads/2024/04/Adobe-InDesign-2024-Full-Version-for-MacOS.jpg" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe Animate 2021</div>
+        </div>
+
+
+
+
+
+
+        <!-- ==================== THEME SECTION (ডেমো) ==================== -->
+        <div class="image-box" data-category="Theme">
+            <div class="image-wrapper" data-first-link="https://example.com" data-second-link="https://github.com" onclick="handleImageClick(this)">
+                <img src="https://picsum.photos/id/11/300/300" alt="Dark Theme">
+            </div>
+            <div class="image-title">Dark Theme</div>
+        </div>
+
+        <!-- ==================== GAME SECTION (ডেমো) ==================== -->
+        <div class="image-box" data-category="Game">
+            <div class="image-wrapper" data-first-link="https://example.com" data-second-link="https://github.com" onclick="handleImageClick(this)">
+                <img src="https://picsum.photos/id/12/300/300" alt="GTA V">
+            </div>
+            <div class="image-title">GTA V</div>
+        </div>
+
+    </div>
+
+    <script>
+        let activeCategory = 'Windows'; // ডিফোল্ট ক্যাটাগরি Windows সেট করা
+        let pendingClick = null;
+
+        window.onload = function() {
+            // প্রথমবার পেজ লোড হলে Windows ক্যাটাগরি একটিভ দেখাবে
+            switchCategory('Windows', document.querySelectorAll('.category-btn')[3]);
+        };
+
+        // ১ম লিংকে ক্লিক ও টাইমিং ট্র্যাকিং
+        function handleImageClick(element) {
+            let firstLink = element.getAttribute('data-first-link');
+            let secondLink = element.getAttribute('data-second-link');
+            let parentBox = element.closest('.image-box');
+
+            pendingClick = {
+                box: parentBox,
+                secondLink: secondLink,
+                startTime: Date.now()
+            };
+
+            window.open(firstLink, '_blank');
+        }
+
+        // ইউজার ব্যাক আসলে ৭ সেকেন্ড সময় চেক করা
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible' && pendingClick) {
+                let timeSpent = (Date.now() - pendingClick.startTime) / 1000;
+
+                if (timeSpent >= 7) {
+                    showDownloadButton(pendingClick.box, pendingClick.secondLink);
+                } else {
+                    alert("ডাউনলোড করতে ১ম ওয়েবসাইটটিতে অন্তত ৭ সেকেন্ড অপেক্ষা করুন!");
+                }
+
+                pendingClick = null;
+            }
+        });
+
+        // নাম সরিয়ে ডাউনলোড বাটন দেখানোর ফাংশন
+        function showDownloadButton(box, secondLink) {
+            let titleElement = box.querySelector('.image-title');
+            if (titleElement) {
+                let downloadBtn = document.createElement('a');
+                downloadBtn.href = secondLink;
+                downloadBtn.target = "_blank";
+                downloadBtn.className = "download-btn";
+                downloadBtn.innerText = "Download";
+
+                titleElement.replaceWith(downloadBtn);
+            }
+        }
+
+        // ক্যাটাগরি পরিবর্তনের ফাংশন
+        function switchCategory(category, btn) {
+            activeCategory = category;
+
+            let buttons = document.querySelectorAll('.category-btn');
+            buttons.forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+
+            document.getElementById('searchInput').value = '';
+            filterImages();
+        }
+
+        // সার্চ ও ফিল্টার
+        function filterImages() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let boxes = document.querySelectorAll('.image-box');
+
+            boxes.forEach(function(box) {
+                let titleElement = box.querySelector('.image-title') || box.querySelector('.download-btn');
+                let textContent = titleElement ? titleElement.innerText.toLowerCase() : '';
+                let category = box.getAttribute('data-category');
+
+                if (category === activeCategory && textContent.includes(input)) {
+                    box.classList.remove('hidden');
+                } else {
+                    box.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
