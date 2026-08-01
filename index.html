@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Gallery</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+
+        /* হেডার সেকশন */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto 25px auto;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        /* ক্যাটাগরি বাটন */
+        .category-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            background-color: #ffffff;
+            color: #333333;
+            border: 2px solid #007bff;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+
+        /* সার্চ বক্স */
+        .search-box {
+            width: 100%;
+            max-width: 280px;
+            padding: 9px 18px;
+            font-size: 15px;
+            border: 2px solid #007bff;
+            border-radius: 25px;
+            outline: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* গ্যালারি কন্টেইনার */
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr); 
+            gap: 15px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ছবির সিঙ্গেল বক্স */
+        .image-box {
+            background-color: #ffffff;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .image-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .image-wrapper {
+            cursor: pointer;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            background-color: #eaeaea;
+            position: relative;
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .image-title {
+            padding: 8px 5px 4px 5px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+            color: #333333;
+            background-color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 20px;
+        }
+
+        /* ================= DOWNLOAD BUTTON AREA ================= */
+        .download-action-area {
+            padding: 0 5px 8px 5px;
+            text-align: center;
+            min-height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timer-text {
+            font-size: 12px;
+            color: #d9534f;
+            font-weight: bold;
+            background: #ffe6e6;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .btn-download-final {
+            display: inline-block;
+            background-color: #28a745;
+            color: #ffffff;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .btn-download-final:hover {
+            background-color: #218838;
+        }
+
+        /* ================= BIG YOUTUBE-STYLE VIDEO MODAL ================= */
+        .video-modal {
+            display: none; 
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-modal-content {
+            position: relative;
+            width: 95%;
+            max-width: 1100px;
+            background-color: #000000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            border: 1px solid #333;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .video-container iframe, 
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            outline: none;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 15px;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10000;
+            background: rgba(0, 0, 0, 0.7);
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            line-height: 38px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: #ff0000;
+            border-color: #ff0000;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ================= AD BLOCKER OVERLAY STYLE ================= */
+        #adblocker-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.96);
+            z-index: 2147483647;
+            color: #fff;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #adblocker-overlay h2 {
+            font-size: 32px;
+            color: #ff4d4d;
+            margin-bottom: 15px;
+        }
+
+        #adblocker-overlay p {
+            font-size: 18px;
+            max-width: 600px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        #adblocker-overlay button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        #adblocker-overlay button:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 1200px) {
+            .gallery-container { grid-template-columns: repeat(5, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .gallery-container { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 480px) {
+            .gallery-container { grid-template-columns: repeat(2, 1fr); }
+            .header-section { flex-direction: column; align-items: stretch; }
+            .category-options { justify-content: center; }
+            .search-box { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- AD BLOCKER DETECTION TRAP -->
+    <div class="ad-zone adsbygoogle ad-placement" id="ads-box" style="height: 10px; width: 10px; position: absolute; left: -9999px;"></div>
+
+    <!-- AD BLOCKER WARNING OVERLAY -->
+    <div id="adblocker-overlay">
+        <h2>Ad Blocker Detected!</h2>
+        <p>আমাদের ওয়েবসাইটটি ব্যবহার করতে অনুগ্রহ করে আপনার ব্রাউজারের Ad Blocker পুরোপুরি বন্ধ (Disable) করুন এবং পেজটি রিফ্রেশ করুন।</p>
+        <button onclick="window.location.reload();">Refresh Page</button>
+    </div>
+
+    <div class="header-section">
+        <div class="category-options">
+            <button class="category-btn active" onclick="switchCategory('Software', this)">Software</button>
+            <button class="category-btn" onclick="switchCategory('Theme', this)">Theme</button>
+            <button class="category-btn" onclick="switchCategory('Game', this)">Game</button>
+            <button class="category-btn" onclick="switchCategory('Windows', this)">Windows</button>
+            <button class="category-btn" onclick="switchCategory('Mini Software', this)">Mini Software</button>
+            <button class="category-btn" onclick="switchCategory('How to Download', this)">How to Download</button>
+        </div>
+
+        <input 
+            type="text" 
+            id="searchInput" 
+            class="search-box" 
+            placeholder="Search..." 
+            onkeyup="filterImages()"
+        >
+    </div>
+
+    <div class="gallery-container">
+        
+        <!-- ==================== WINDOWS SECTION ==================== -->
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-download-link-1="" 
+                 data-download-link-2="https://dn721609.ca.archive.org/0/items/windows-11_202108/Windows11.iso" 
+                 onclick="handleTwoStepDownload(this)">
+                <img src="https://thumbs.dreamstime.com/b/windows-logo-isolated-image-features-windows-logo-consisting-four-equally-sized-blue-squares-arranged-grid-407575177.jpg" alt="Windows 11">
+            </div>
+            <div class="image-title">Windows 11 all</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-download-link-1="" 
+                 data-download-link-2="https://dn721901.ca.archive.org/0/items/windows-10-32-bit-64-bit-1709-1803-20h2-21h1-21h2-22h2/21H2/Win10_21H2_English_x32.iso" 
+                 onclick="handleTwoStepDownload(this)">
+                <img src="https://copilot.microsoft.com/th/id/BCO.2f48c9ad-0240-4ab1-b21f-da7d334525ad.png" alt="Windows 10 32 bit">
+            </div>
+            <div class="image-title">Win10_21H2_English_x32</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-download-link-1="" 
+                 data-download-link-2="https://dn721901.ca.archive.org/0/items/windows-10-32-bit-64-bit-1709-1803-20h2-21h1-21h2-22h2/21H2/Win10_21H2_English_x64.iso" 
+                 onclick="handleTwoStepDownload(this)">
+                <img src="https://copilot.microsoft.com/th/id/BCO.2f48c9ad-0240-4ab1-b21f-da7d334525ad.png" alt="Windows 10 64 bit">
+            </div>
+            <div class="image-title">Win10_21H2_English_x64</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-download-link-1="" 
+                 data-download-link-2="https://dn720803.ca.archive.org/0/items/windows-10-lite-edition-19h2-x64/Windows%2010%20Lite%20Edition%2019H2%20x64.iso" 
+                 onclick="handleTwoStepDownload(this)">
+                <img src="https://copilot.microsoft.com/th/id/BCO.2f48c9ad-0240-4ab1-b21f-da7d334525ad.png" alt="Windows 10">
+            </div>
+            <div class="image-title">Windows 10 lite x64</div>
+            <div class="download-action-area"></div>
+        </div>
+        
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-download-link-1="" 
+                 data-download-link-2="https://dn721604.ca.archive.org/0/items/en_windows_10_enterprise_ltsc_2019_x64_dvd/en_windows_10_enterprise_ltsc_2019_x64_dvd.ISO" 
+                 onclick="handleTwoStepDownload(this)">
+                <img src="https://copilot.microsoft.com/th/id/BCO.2f48c9ad-0240-4ab1-b21f-da7d334525ad.png" alt="Windows 10">
+            </div>
+            <div class="image-title">Windows 10 ltsc 2019</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Windows">
+          <div class="image-wrapper" 
+               data-download-link-1="" 
+               data-download-link-2="https://dn720006.ca.archive.org/0/items/Windows-8-1-ISO-Archive/Win8.1_English_x32.iso" 
+               onclick="handleTwoStepDownload(this)">
+                <img src="https://copilot.microsoft.com/th/id/BCO.b5f18cb1-5afa-4b43-a7a7-9536147a8fd7.png" alt="Windows 8.1">
+            </div>
+            <div class="image-title">Windows 8.1 32bit</div>
+            <div class="download-action-area"></div>
+        </div>
+        
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-download-link-1="" 
+                 data-download-link-2="https://dn720006.ca.archive.org/0/items/Windows-8-1-ISO-Archive/Win8.1_English_x64.iso" 
+                 onclick="handleTwoStepDownload(this)">
+                <img src="https://copilot.microsoft.com/th/id/BCO.b5f18cb1-5afa-4b43-a7a7-9536147a8fd7.png" alt="Windows 8.1">
+            </div>
+            <div class="image-title">Windows 8.1 64bit</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-download-link-1="" 
+                 data-download-link-2="https://dn710809.ca.archive.org/0/items/windows-x-lite-optimum-10-classic/WindowsX-Lite-Optimum10Classic.iso" 
+                 onclick="handleTwoStepDownload(this)">
+                <img src="https://copilot.microsoft.com/th/id/BCO.102b6ee2-3ae6-4a47-9004-6a4d0c9ff81d.png" alt="Windows 10">
+            </div>
+            <div class="image-title">Windows 10 X-Lite</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-download-link-1="" 
+                 data-download-link-2="https://dn720705.ca.archive.org/0/items/windows-x-lite-optimum-11-24-h-2-pro-v-4.1/%5BWindows%20X-Lite%5D%20Optimum%2011%2024H2%20Pro%20v4.1.iso" 
+                 onclick="handleTwoStepDownload(this)">
+                <img src="https://copilot.microsoft.com/th/id/BCO.83e0f2a9-e043-4b62-a0dd-6167a3ab3bb2.png">
+            </div>
+            <div class="image-title">Windows 11 X-Lite</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-download-link-1="" 
+                 data-download-link-2="https://dn760107.eu.archive.org/0/items/tiny-10-23-h2/tiny10%20x64%2023h2.iso" 
+                 onclick="handleTwoStepDownload(this)">
+                <img src="https://copilot.microsoft.com/th/id/BCO.72439c1e-c27c-46d5-9bfd-4c8a3117e649.png" alt="Windows 10">
+            </div>
+            <div class="image-title">tiny10 23H2 x64</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-download-link-1="" 
+                 data-download-link-2="https://dn721503.ca.archive.org/0/items/tiny-11-NTDEV/tiny11%2023H2%20x64.iso" 
+                 onclick="handleTwoStepDownload(this)">
+                <img src="https://copilot.microsoft.com/th/id/BCO.72439c1e-c27c-46d5-9bfd-4c8a3117e649.png" alt="Windows 10">
+            </div>
+            <div class="image-title">tiny11 23H2 x64</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Windows">
+            <div class="image-wrapper" 
+                 data-download-link-1="" 
+                 data-download-link-2="https://dn721909.ca.archive.org/0/items/tiny-11-25h2/Tiny11_25H2_English.iso" 
+                 onclick="handleTwoStepDownload(this)">
+                <img src="https://copilot.microsoft.com/th/id/BCO.72439c1e-c27c-46d5-9bfd-4c8a3117e649.png" alt="Windows 10">
+            </div>
+            <div class="image-title">tiny11 25H2</div>
+            <div class="download-action-area"></div>
+        </div>
+        
+        <!-- ==================== SOFTWARE SECTION ==================== -->
+        <div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-download-link-1="https://shrinkme.click/kqMoy" data-download-link-2="https://shrinkme.click/kqMoy" onclick="handleTwoStepDownload(this)">
+                <img src="https://pics.paypal.com/00/s/ZDFlNDM0ZWItMTlmNC00YmZlLWEyMzItYWYzNDFlYTQ2ODJl/file.JPG" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe Photoshop</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-download-link-1="https://shrinkme.click/zSE32" data-download-link-2="https://shrinkme.click/zSE32" onclick="handleTwoStepDownload(this)">
+                <img src="https://tse3.mm.bing.net/th/id/OIP.2N4rvxoOr5GfeqbiJgqUIQHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe Audition</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-download-link-1="https://shrinkme.click/Zmcv4RlP" data-download-link-2="https://shrinkme.click/Zmcv4RlP" onclick="handleTwoStepDownload(this)">
+                <img src="https://tse3.mm.bing.net/th/id/OIP.lwrzwwTRhvQzgFXcjDWvPgHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe Premiere Pro</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-download-link-1="https://shrinkme.click/ZoQ3" data-download-link-2="https://shrinkme.click/ZoQ3" onclick="handleTwoStepDownload(this)">
+                <img src="https://files.selar.co/product-images/2023/products/VideoMarketingHub/adobe-illustrator-2022-pr-selar.co-64998cb49527a.png" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe Illustrator</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-download-link-1="https://shrinkme.click/vWJU" data-download-link-2="https://shrinkme.click/vWJU" onclick="handleTwoStepDownload(this)">
+                <img src="https://www-konga-com-res.cloudinary.com/f_auto,fl_lossy,dpr_auto,q_auto/media/catalog/product/R/U/231524_1716152799.jpg" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe Lightroom</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-download-link-1="https://shrinkme.click/FFIFTi" data-download-link-2="https://shrinkme.click/FFIFTi" onclick="handleTwoStepDownload(this)">
+                <img src="https://tse1.mm.bing.net/th/id/OIP.hUi_pzB5cXjABq1aHlhN0AHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe After Effects</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-download-link-1="https://shrinkme.click/QKnbM" data-download-link-2="https://shrinkme.click/QKnbM" onclick="handleTwoStepDownload(this)">
+                <img src="https://tse4.mm.bing.net/th/id/OIP.-0zDkhXfxUuPsBVES9eszgHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe Animate</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-download-link-1="https://shrinkme.click/tXrzd" data-download-link-2="https://shrinkme.click/tXrzd" onclick="handleTwoStepDownload(this)">
+                <img src="https://www-konga-com-res.cloudinary.com/f_auto,fl_lossy,dpr_auto,q_auto/media/catalog/product/Z/W/229429_1710254413.jpg" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe InDesign 2020</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-download-link-1="https://shrinkme.click/AbkYQ" data-download-link-2="https://shrinkme.click/AbkYQ" onclick="handleTwoStepDownload(this)">
+                <img src="https://copilot.microsoft.com/th/id/BCO.a4101b07-c916-48e5-8287-c85954b37994.png" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe Fresco</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-download-link-1="https://shrinkme.click/7emVUo5j" data-download-link-2="https://shrinkme.click/7emVUo5j" onclick="handleTwoStepDownload(this)">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg8fNJvkh4nwLW4OQKd_vFk4eqqwYjI1ywY1tDwLRV8McA5TlnVKL4uE5Gc6IZraY4Pt2G8HwpLiayQif1PGzrAbzlvPQCHqONVViFIcEYsxms5AdEfB9hsKOGPiXauoxJ43zuqvNh9RiuOAwmTS-B4k2R9zmm_f4wGLV6jddCkyThxQpZsdZaA3QYuN-o1/w1200-h630-p-k-no-nu/images.jpeg-1.jpg" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe incopy</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-download-link-1="https://shrinkme.click/TtDGPOk" data-download-link-2="https://shrinkme.click/TtDGPOk" onclick="handleTwoStepDownload(this)">
+                <img src="https://files.selar.co/product-images/2023/products/VideoMarketingHub/adobe-media-encoder-2022--selar.co-6499f335767e8.png" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe Media Encoder</div>
+            <div class="download-action-area"></div>
+        </div>
+        
+        <div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-download-link-1="https://shrinkme.click/Co0B27o" data-download-link-2="https://shrinkme.click/Co0B27o" onclick="handleTwoStepDownload(this)">
+                <img src="https://www.ekeys.it/wp-content/uploads/adobe-acrobat-pro-2022.png" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe Acrobat</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Software">
+            <div class="image-wrapper" data-download-link-1="https://shrinkme.click/mLDfHfs" data-download-link-2="https://shrinkme.click/mLDfHfs" onclick="handleTwoStepDownload(this)">
+                <img src="https://macrosoft.store/837-large_default/adobe-xd-2022-windows.jpg" alt="Photoshop">
+            </div>
+            <div class="image-title">Adobe XD</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <!-- ==================== MINI SOFTWARE SECTION ==================== -->
+        <div class="image-box" data-category="Mini Software">
+            <div class="image-wrapper" data-download-link-1="https://dn721608.ca.archive.org/0/items/rufus-3.21p/rufus-3.21p.exe" data-download-link-2="https://dn721608.ca.archive.org/0/items/rufus-3.21p/rufus-3.21p.exe" onclick="handleTwoStepDownload(this)">
+                <img src="https://img.utdstc.com/icon/6e5/95c/6e595ced67941a6a81b1817a33a4df040638abde8804c053271d1fbd22deeb97:200" alt="IDM">
+            </div>
+            <div class="image-title">RUFUS</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Mini Software">
+            <div class="image-wrapper" data-download-link-1="https://drive.usercontent.google.com/download?id=18JwSRnhlk98nVwJNlyzS7hSH7kYIvwZh&export=download&authuser=0&confirm=t&uuid=a1d889ca-1c11-4e48-9d39-06e5ae81032b&at=AFYLz4Oic0tAL-FYEKMURpuZMPTg:1785408553490" data-download-link-2="https://drive.usercontent.google.com/download?id=18JwSRnhlk98nVwJNlyzS7hSH7kYIvwZh&export=download&authuser=0&confirm=t&uuid=a1d889ca-1c11-4e48-9d39-06e5ae81032b&at=AFYLz4Oic0tAL-FYEKMURpuZMPTg:1785408553490" onclick="handleTwoStepDownload(this)">
+                <img src="https://tse2.mm.bing.net/th/id/OIP.UXKay4v4r1toUTq2pA0xWwHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="WinRAR">
+            </div>
+            <div class="image-title">WinRAR 64bit</div>
+            <div class="download-action-area"></div>
+        </div>
+     
+        <div class="image-box" data-category="Mini Software">
+            <div class="image-wrapper" data-download-link-1="https://dn721807.ca.archive.org/0/items/7z-2201-x-64_202301/7z2201-x64.exe" data-download-link-2="https://dn721807.ca.archive.org/0/items/7z-2201-x-64_202301/7z2201-x64.exe" onclick="handleTwoStepDownload(this)">
+                <img src="https://th.bing.com/th/id/OIP.lw7nQUtzXiTEZfQqib5DmwAAAA?w=108&h=108&c=1&bgcl=2911dd&r=0&o=7&pid=ImgRC&rm=3" alt="WinRAR">
+            </div>
+            <div class="image-title">7z2201-x64</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Mini Software">
+            <div class="image-wrapper" data-download-link-1="https://dl.stardesk.net/StarDesk_Setup_1.4.2.9048_0728183948_official.exe?n=StarDesk_1.4.2.exe" data-download-link-2="https://dl.stardesk.net/StarDesk_Setup_1.4.2.9048_0728183948_official.exe?n=StarDesk_1.4.2.exe" onclick="handleTwoStepDownload(this)">
+                <img src="https://th.bing.com/th/id/OIP.aeZ8-6aHAQbKXdxeWEMgeQHaD4?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3" alt="WinRAR">
+            </div>
+            <div class="image-title">StarDesk</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <div class="image-box" data-category="Mini Software">
+            <div class="image-wrapper" data-download-link-1="https://ia600105.us.archive.org/18/items/bijoy-bayanno_202607/bijoy-bayanno_202607_archive.torrent" data-download-link-2="https://ia600105.us.archive.org/18/items/bijoy-bayanno_202607/bijoy-bayanno_202607_archive.torrent" onclick="handleTwoStepDownload(this)">
+                <img src="https://th.bing.com/th/id/OIP.LOH4hcVG16Gnp25s-WnmsAAAAA?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3" alt="WinRAR">
+            </div>
+            <div class="image-title">Bijoy 52</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <!-- ==================== HOW TO DOWNLOAD ==================== -->
+        <div class="image-box" data-category="How to Download">
+            <div class="image-wrapper" data-video-link="https://youtu.be/9tt_4o1ilyo" onclick="playInSiteVideo(this)">
+                <img src="https://i.ytimg.com/an_webp/9tt_4o1ilyo/mqdefault_6s.webp?du=3000&sqp=CP6prdMG&rs=AOn4CLCA0RPWAnNMzhwnyy7WMhtDmitU5A" alt="How to Download Video">
+            </div>
+            <div class="image-title">How to Download Tutorial</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <!-- ==================== THEME SECTION ==================== -->
+        <div class="image-box" data-category="Theme">
+            <div class="image-wrapper" data-download-link-1="" data-download-link-2="" onclick="handleTwoStepDownload(this)">
+                <img src="https://picsum.photos/id/11/300/300" alt="Dark Theme">
+            </div>
+            <div class="image-title">Dark Theme</div>
+            <div class="download-action-area"></div>
+        </div>
+
+        <!-- ==================== GAME SECTION ==================== -->
+        <div class="image-box" data-category="Game">
+            <div class="image-wrapper" data-download-link-1="" data-download-link-2="" onclick="handleTwoStepDownload(this)">
+                <img src="https://picsum.photos/id/12/300/300" alt="GTA V">
+            </div>
+            <div class="image-title">GTA V</div>
+            <div class="download-action-area"></div>
+        </div>
+
+    </div>
+
+    <!-- ==================== VIDEO PLAYER MODAL ==================== -->
+    <div id="videoModal" class="video-modal">
+        <div class="video-modal-content">
+            <span class="close-btn" onclick="closeVideoModal()">&times;</span>
+            <div class="video-container" id="playerContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        let isAdBlockActive = false;
+
+        function showAdBlockOverlay() {
+            isAdBlockActive = true;
+            let overlay = document.getElementById('adblocker-overlay');
+            if (overlay) {
+                overlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function hideAdBlockOverlay() {
+            isAdBlockActive = false;
+            let overlay = document.getElementById('adblocker-overlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // অ্যাডব্লকার রিয়েল-টাইমে চেক করার ফাংশন
+        function checkAdBlocker() {
+            let adsBox = document.getElementById('ads-box');
+
+            if (!adsBox || adsBox.offsetHeight === 0 || adsBox.clientHeight === 0 || window.getComputedStyle(adsBox).display === 'none') {
+                showAdBlockOverlay();
+                return;
+            }
+
+            fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
+                method: 'HEAD',
+                mode: 'no-cors'
+            }).then(function() {
+                if (!isAdBlockActive) {
+                    hideAdBlockOverlay();
+                }
+            }).catch(function() {
+                showAdBlockOverlay();
+            });
+        }
+
+        setInterval(checkAdBlocker, 1500);
+
+        let activeCategory = 'Software'; 
+
+        window.onload = function() {
+            checkAdBlocker();
+            switchCategory('Software', document.querySelectorAll('.category-btn')[0]);
+        };
+
+        // ================= DOWNLOAD SYSTEM =================
+        function handleTwoStepDownload(element) {
+            if (isAdBlockActive) return;
+
+            let link1 = element.getAttribute('data-download-link-1');
+            let link2 = element.getAttribute('data-download-link-2');
+            let parentBox = element.closest('.image-box');
+            let actionArea = parentBox.querySelector('.download-action-area');
+
+            // ১. দুটি লিংকই যদি খালি থাকে
+            if ((!link1 || link1.trim() === "") && (!link2 || link2.trim() === "")) {
+                alert("এখানে কোনো ডাউনলোড লিংক দেওয়া নেই!");
+                return;
+            }
+
+            // ২. ১ম লিংক ফাঁকা থাকলে সরাসরি ডাউনলোড বাটন দেখাবে
+            if ((!link1 || link1.trim() === "") && link2 && link2.trim() !== "") {
+                actionArea.innerHTML = `
+                    <a href="${link2}" target="_blank" class="btn-download-final">
+                       📥 Download Now
+                    </a>
+                `;
+                return;
+            }
+
+            // ৩. ১ম লিংক দেওয়া থাকলে প্রথমে ১ম লিংক খুলবে এবং ৫ সেকেন্ড কাউন্টডাউন শুরু হবে
+            if (link1 && link1.trim() !== "") {
+                window.open(link1, '_blank');
+
+                if (link2 && link2.trim() !== "" && actionArea) {
+                    if (actionArea.querySelector('.btn-download-final')) return;
+
+                    let timeLeft = 5;
+                    actionArea.innerHTML = `<span class="timer-text">Wait ${timeLeft}s...</span>`;
+
+                    let countdown = setInterval(function() {
+                        timeLeft--;
+                        if (timeLeft > 0) {
+                            actionArea.innerHTML = `<span class="timer-text">Wait ${timeLeft}s...</span>`;
+                        } else {
+                            clearInterval(countdown);
+                            actionArea.innerHTML = `
+                                <a href="${link2}" target="_blank" class="btn-download-final">
+                                   📥 Download Now
+                                </a>
+                            `;
+                        }
+                    }, 1000);
+                }
+            }
+        }
+
+        function getYouTubeId(url) {
+            let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|shorts\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            let match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function playInSiteVideo(element) {
+            if (isAdBlockActive) return;
+
+            let videoLink = element.getAttribute('data-video-link');
+            if (videoLink && videoLink.trim() !== "") {
+                let modal = document.getElementById('videoModal');
+                let container = document.getElementById('playerContainer');
+                let youtubeId = getYouTubeId(videoLink);
+
+                container.innerHTML = ''; 
+
+                if (youtubeId) {
+                    container.innerHTML = `<iframe src="https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                } else {
+                    container.innerHTML = `
+                        <video controls autoplay style="width:100%; height:100%;">
+                            <source src="${videoLink}" type="video/mp4">
+                            আপনার ব্রাউজারে ভিডিও প্লে হচ্ছে না।
+                        </video>`;
+                }
+
+                modal.style.display = "flex";
+            } else {
+                alert("এখানে কোনো ভিডিও লিংক দেওয়া নেই!");
+            }
+        }
+
+        function closeVideoModal() {
+            let modal = document.getElementById('videoModal');
+            let container = document.getElementById('playerContainer');
+            
+            container.innerHTML = ''; 
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            let modal = document.getElementById('videoModal');
+            if (event.target == modal) {
+                closeVideoModal();
+            }
+        }
+
+        function switchCategory(category, btn) {
+            activeCategory = category;
+
+            let buttons = document.querySelectorAll('.category-btn');
+            buttons.forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+
+            document.getElementById('searchInput').value = '';
+            filterImages();
+        }
+
+        function filterImages() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let boxes = document.querySelectorAll('.image-box');
+
+            boxes.forEach(function(box) {
+                let titleElement = box.querySelector('.image-title');
+                let textContent = titleElement ? titleElement.innerText.toLowerCase() : '';
+                let category = box.getAttribute('data-category');
+
+                if (category === activeCategory && textContent.includes(input)) {
+                    box.classList.remove('hidden');
+                } else {
+                    box.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
